@@ -1,0 +1,65 @@
+{
+  "$schema": "./app-catalog.schema.json",
+  "schemaVersion": 1,
+  "apps": [
+    {
+      "name": "Mozilla Firefox",
+      "aliases": [
+        "firefox",
+        "mozilla"
+      ],
+      "homepage": "https://www.mozilla.org/firefox/",
+      "downloadUrl": "https://download.mozilla.org/?product=firefox-latest-ssl&os=win64&lang=en-US",
+      "fileName": "Firefox-Setup.exe",
+      "installerType": "exe",
+      "architectures": [
+        "x64"
+      ],
+      "silentArguments": [
+        "-ms"
+      ],
+      "publisherPattern": "Mozilla Corporation",
+      "sha256": "",
+      "requiresAdmin": false,
+      "successExitCodes": [
+        0,
+        1641,
+        3010
+      ],
+      "restartExitCodes": [
+        1641,
+        3010
+      ]
+    },
+    {
+      "name": "Google Chrome",
+      "aliases": [
+        "chrome",
+        "google chrome"
+      ],
+      "homepage": "https://www.google.com/chrome/",
+      "downloadUrl": "https://dl.google.com/chrome/install/latest/chrome_installer.exe",
+      "fileName": "Chrome-Installer.exe",
+      "installerType": "exe",
+      "architectures": [
+        "x64"
+      ],
+      "silentArguments": [
+        "/silent",
+        "/install"
+      ],
+      "publisherPattern": "Google LLC",
+      "sha256": "",
+      "requiresAdmin": false,
+      "successExitCodes": [
+        0,
+        1641,
+        3010
+      ],
+      "restartExitCodes": [
+        1641,
+        3010
+      ]
+    }
+  ]
+}

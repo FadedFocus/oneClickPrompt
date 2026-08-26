@@ -1,0 +1,114 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "oneClickPrompt Installer Catalog",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "apps"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "apps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "aliases",
+          "homepage",
+          "downloadUrl",
+          "fileName",
+          "installerType",
+          "architectures",
+          "silentArguments",
+          "publisherPattern",
+          "requiresAdmin",
+          "successExitCodes",
+          "restartExitCodes"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "aliases": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "homepage": {
+            "type": "string",
+            "format": "uri",
+            "pattern": "^https://"
+          },
+          "downloadUrl": {
+            "type": "string",
+            "format": "uri",
+            "pattern": "^https://"
+          },
+          "fileName": {
+            "type": "string",
+            "pattern": "^[^\\\\/:*?\"<>|]+\\.(exe|msi)$"
+          },
+          "installerType": {
+            "enum": [
+              "exe",
+              "msi"
+            ]
+          },
+          "architectures": {
+            "type": "array",
+            "items": {
+              "enum": [
+                "x64",
+                "arm64",
+                "x86"
+              ]
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "silentArguments": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "publisherPattern": {
+            "type": "string",
+            "minLength": 1
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^$|^[A-Fa-f0-9]{64}$"
+          },
+          "requiresAdmin": {
+            "type": "boolean"
+          },
+          "successExitCodes": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "restartExitCodes": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "uniqueItems": true
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,38 @@
+name: PowerShell tests
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  pester:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        shell:
+          - powershell
+          - pwsh
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install PowerShell test tools
+        shell: ${{ matrix.shell }}
+        run: |
+          Install-Module Pester -MinimumVersion 5.5 -Scope CurrentUser -Force -SkipPublisherCheck
+          Install-Module PSScriptAnalyzer -Scope CurrentUser -Force
+
+      - name: Analyze PowerShell
+        shell: ${{ matrix.shell }}
+        run: |
+          $issues = @(Invoke-ScriptAnalyzer -Path . -Recurse -Severity Error)
+          $issues | Format-Table -AutoSize
+          if ($issues.Count -gt 0) { throw "PSScriptAnalyzer found $($issues.Count) error(s)." }
+
+      - name: Run tests
+        shell: ${{ matrix.shell }}
+        run: Invoke-Pester -Path ./tests -CI
