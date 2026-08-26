@@ -18,7 +18,7 @@ An interactive PowerShell installer for Windows 11. The user types a program nam
 Open Windows PowerShell or PowerShell 7 and run:
 
 ```powershell
-& ([scriptblock]::Create((Invoke-RestMethod 'https://raw.githubusercontent.com/FadedFocus/oneClickPrompt/main/Bootstrap.ps1')))
+& ([scriptblock]::Create((Invoke-RestMethod -Uri "https://api.github.com/repos/FadedFocus/oneClickPrompt/contents/Bootstrap.ps1?ref=main&cache=$([Guid]::NewGuid().ToString('N'))" -Headers @{ Accept = 'application/vnd.github.raw+json'; 'Cache-Control' = 'no-cache'; 'User-Agent' = 'oneClickPrompt-launcher' })))
 ```
 
 No Git client, PowerShell modules, or preinstalled WinGet command are required. The bootstrap script:
