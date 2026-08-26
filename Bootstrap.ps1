@@ -59,18 +59,39 @@ function Invoke-RepositoryArchiveDownload {
     )
 
     $escapedRef = [Uri]::EscapeDataString($SourceRef)
-    $archiveUri = "https://api.github.com/repos/$RepositoryName/zipball/$escapedRef"
+    $requestNonce = [Guid]::NewGuid().ToString('N')
+    $commitUri = "https://api.github.com/repos/$RepositoryName/commits/$escapedRef`?oneClickPrompt=$requestNonce"
     $previousSecurityProtocol = [Net.ServicePointManager]::SecurityProtocol
 
     try {
         [Net.ServicePointManager]::SecurityProtocol = $previousSecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
+
+        $requestHeaders = @{
+            Accept          = 'application/vnd.github+json'
+            'Cache-Control' = 'no-cache'
+            'User-Agent'    = 'oneClickPrompt-bootstrap'
+        }
+        $commitResponse = Invoke-WebRequest `
+            -Uri $commitUri `
+            -Headers $requestHeaders `
+            -UseBasicParsing `
+            -ErrorAction Stop
+        $commit = $commitResponse.Content | ConvertFrom-Json
+        $commitSha = [string]$commit.sha
+        if ($commitSha -notmatch '^[a-fA-F0-9]{40}$') {
+            throw "GitHub did not return a valid commit for ref '$SourceRef'."
+        }
+
+        $archiveUri = "https://api.github.com/repos/$RepositoryName/zipball/$commitSha`?oneClickPrompt=$requestNonce"
         Invoke-WebRequest `
             -Uri $archiveUri `
-            -Headers @{ Accept = 'application/vnd.github+json'; 'User-Agent' = 'oneClickPrompt-bootstrap' } `
+            -Headers $requestHeaders `
             -OutFile $DestinationPath `
             -UseBasicParsing `
             -MaximumRedirection 10 `
             -ErrorAction Stop
+
+        return $commitSha
     }
     finally {
         [Net.ServicePointManager]::SecurityProtocol = $previousSecurityProtocol
@@ -89,7 +110,8 @@ try {
     New-Item -Path $temporaryRoot -ItemType Directory -Force | Out-Null
 
     Write-Host "Downloading $Repository at ref '$Ref'..." -ForegroundColor Cyan
-    Invoke-RepositoryArchiveDownload -RepositoryName $Repository -SourceRef $Ref -DestinationPath $archivePath
+    $resolvedCommit = Invoke-RepositoryArchiveDownload -RepositoryName $Repository -SourceRef $Ref -DestinationPath $archivePath
+    Write-Host "Resolved '$Ref' to commit $($resolvedCommit.Substring(0, 7))." -ForegroundColor DarkGray
 
     Write-Host 'Preparing oneClickPrompt...' -ForegroundColor Cyan
     Expand-Archive -LiteralPath $archivePath -DestinationPath $extractedPath -Force
