@@ -208,7 +208,7 @@ function ConvertFrom-WinGetSearchOutput {
         })
     }
 
-    return @($packages)
+    return $packages.ToArray()
 }
 
 function Invoke-WinGetSearch {
@@ -441,10 +441,10 @@ function Find-CatalogPackages {
     }
 
     if ($exactMatches.Count -gt 0) {
-        return @($exactMatches)
+        return $exactMatches.ToArray()
     }
 
-    return @($partialMatches)
+    return $partialMatches.ToArray()
 }
 
 function Select-CatalogPackage {
@@ -567,7 +567,7 @@ function Invoke-WinGetInstall {
 
     $exitCode = $LASTEXITCODE
     $pendingAfter = Get-PendingRebootState
-    Add-RawLogLines -Lines @($output)
+    Add-RawLogLines -Lines $output.ToArray()
 
     $winGetCompletedWithRestart = @(
         -1978334967, # 0x8A150109: restart required to finish
@@ -575,7 +575,7 @@ function Invoke-WinGetInstall {
     )
     $winGetRestartBeforeInstall = -1978334966 # 0x8A15010A
     $succeeded = ($exitCode -eq 0) -or ($exitCode -in @(1641, 3010)) -or ($exitCode -in $winGetCompletedWithRestart)
-    $restartRequired = Test-RestartSignal -ExitCode $exitCode -Output @($output) -PendingBefore $pendingBefore -PendingAfter $pendingAfter
+    $restartRequired = Test-RestartSignal -ExitCode $exitCode -Output $output.ToArray() -PendingBefore $pendingBefore -PendingAfter $pendingAfter
 
     if ($succeeded) {
         Write-InstallerMessage -Message "$DisplayName installed successfully." -Level Success
@@ -1001,7 +1001,7 @@ function Start-AppInstaller {
                 }
 
                 if (Read-YesNo -Prompt 'Restart now?') {
-                    Show-InstallSummary -Results @($results) -RestartDeferred $false
+                    Show-InstallSummary -Results $results.ToArray() -RestartDeferred $false
                     Request-SystemRestart
                     return
                 }
@@ -1015,7 +1015,7 @@ function Start-AppInstaller {
         }
     }
 
-    Show-InstallSummary -Results @($results) -RestartDeferred $restartDeferred
+    Show-InstallSummary -Results $results.ToArray() -RestartDeferred $restartDeferred
     Write-Host ''
     Read-Host 'Press Enter to close' | Out-Null
 }

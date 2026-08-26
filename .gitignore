@@ -1,4 +1,5 @@
 *.log
 *.tmp
+testResults.xml
 .DS_Store
 Thumbs.db

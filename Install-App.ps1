@@ -2,15 +2,25 @@
 
 [CmdletBinding()]
 param(
-    [string]$CatalogPath = (Join-Path $PSScriptRoot 'config\app-catalog.json')
+    [string]$CatalogPath,
+
+    [switch]$SkipWinGetBootstrap
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
+if ([string]::IsNullOrWhiteSpace($CatalogPath)) {
+    $CatalogPath = Join-Path $PSScriptRoot 'config\app-catalog.json'
+}
+
 $modulePath = Join-Path $PSScriptRoot 'src\Win11AppInstaller.psm1'
+$prerequisiteModulePath = Join-Path $PSScriptRoot 'src\OneClickPromptPrerequisites.psm1'
 
 try {
+    Import-Module $prerequisiteModulePath -Force -ErrorAction Stop
+    Initialize-OneClickPromptPrerequisites -SkipWinGetBootstrap:$SkipWinGetBootstrap | Out-Null
+
     Import-Module $modulePath -Force -ErrorAction Stop
     Start-AppInstaller -CatalogPath $CatalogPath
     exit 0

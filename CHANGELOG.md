@@ -3,6 +3,9 @@
 ## Unreleased
 
 - Renamed the project to `oneClickPrompt`.
+- Added a one-line PowerShell bootstrap that downloads and runs the project without Git.
+- Added automatic registration and user-approved repair of a missing WinGet installation.
+- Fixed the Windows CI workflow and added prerequisite bootstrap tests.
 
 ## 0.1.0 - 2026-08-25
 
