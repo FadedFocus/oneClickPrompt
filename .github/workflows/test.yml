@@ -9,20 +9,29 @@ permissions:
 
 jobs:
   pester:
-    name: ${{ matrix.name }}
+    name: Analyze and test
     runs-on: windows-latest
-    strategy:
-      matrix:
-        include:
-          - name: Windows PowerShell 5.1
-            engine: powershell.exe
-          - name: PowerShell 7
-            engine: pwsh.exe
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
-      - name: Analyze and test
+      - name: Download test tools
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $moduleCache = Join-Path $env:RUNNER_TEMP 'oneClickPrompt-modules'
+          New-Item -Path $moduleCache -ItemType Directory -Force | Out-Null
+
+          Save-PSResource -Name Pester -Version '6.1.0' -Repository PSGallery -Path $moduleCache -TrustRepository -Quiet
+          Save-PSResource -Name PSScriptAnalyzer -Version '1.25.0' -Repository PSGallery -Path $moduleCache -TrustRepository -Quiet
+
+          "ONECLICKPROMPT_MODULE_CACHE=$moduleCache" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Analyze and test with PowerShell 7
+        shell: pwsh
+        run: ./tests/Invoke-CI.ps1 -ModuleCachePath $env:ONECLICKPROMPT_MODULE_CACHE
+
+      - name: Analyze and test with Windows PowerShell 5.1
         shell: powershell
-        run: '& "${{ matrix.engine }}" -NoLogo -NoProfile -ExecutionPolicy Bypass -File .\tests\Invoke-CI.ps1'
+        run: .\tests\Invoke-CI.ps1 -ModuleCachePath $env:ONECLICKPROMPT_MODULE_CACHE
